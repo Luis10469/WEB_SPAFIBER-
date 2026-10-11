@@ -54,7 +54,6 @@ export type ContactParseResult =
   | { ok: true; data: ContactRequest }
   | { ok: false; errors: ContactErrors };
 
-const CONTROL_CHARS = /[\u0000-\u001F\u007F]/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PROJECT_ID_PATTERN = /^[a-z0-9-]*$/;
 
@@ -68,7 +67,12 @@ const readString = (source: Record<string, unknown>, key: string): string => {
   return typeof value === 'string' ? value.trim() : '';
 };
 
-const hasControlCharacters = (value: string) => CONTROL_CHARS.test(value);
+// Rechaza caracteres de control (incluidos NUL y DEL), que no deben aparecer en texto de formulario.
+const hasControlCharacters = (value: string) =>
+  Array.from(value).some((character) => {
+    const code = character.charCodeAt(0);
+    return code < 0x20 || code === 0x7f;
+  });
 
 /**
  * Valida y normaliza una solicitud de cotización de origen no confiable (JSON del cliente).

@@ -65,12 +65,28 @@ export interface CompanyInfo {
   };
 }
 
-export interface ContactFormData {
+/** Estado editable del formulario de cotización (valores tal como los escribe el visitante). */
+export interface ContactDraft {
   fullName: string;
   email: string;
   company: string;
   serviceId: string;
+  platform: string;
+  objective: string;
+  features: string;
+  timeline: string;
+  budget: string;
   message: string;
+  referenceProjectId: string;
+  referenceProjectTitle: string;
+  consent: boolean;
+  website: string;
+}
+
+/** Proyecto de referencia que el visitante quiere usar como punto de partida. */
+export interface ProjectReference {
+  id: string;
+  title: string;
 }
 
 export interface TechnologyItem {
