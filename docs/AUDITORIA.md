@@ -41,7 +41,7 @@ Estado Git inicial: árbol limpio; HEAD `8b7eb12` = `main`. El remoto contiene a
 | SPF-017 | MEDIO | `tests/`, `tsconfig` | Antes: sin typecheck de `functions/`, sin E2E | Cobertura incompleta | Regresiones no detectadas | Typecheck de `server/`, `functions/` y `src/lib` (`npm run typecheck`); 63 pruebas de Vitest; 18 pruebas Playwright | `npm run typecheck`, `npm test` | Resuelto (E2E pendiente de ejecución; ver SPF-020) |
 | SPF-018 | BAJO | `ContactForm.tsx`, `ContactSection.tsx` | Antes: «El tiempo de respuesta depende del canal» sin compromiso | Contenido pendiente | Expectativa ambigua | Texto neutral; no se promete plazo de respuesta | Revisión de copy | **Pendiente** — SLA comercial |
 | SPF-019 | MEDIO | `server/contact/rateLimit.ts` | Límite de 5 solicitudes / 10 min **en memoria de la instancia** | Las instancias serverless no comparten memoria | El límite es parcial; un atacante distribuido puede superarlo | Documentado; se recomienda reglas de rate limiting del proveedor | `tests/contact-api.test.ts` (límite por IP) | **Pendiente** — configurar reglas en la plataforma |
-| SPF-020 | MEDIO | `e2e/`, `playwright.config.ts` | El navegador oficial de Playwright no puede descargarse en el entorno de desarrollo (CDN fuera de los hosts permitidos). El job `e2e` de GitHub Actions del primer commit terminó en fallo y sus logs no son accesibles desde el entorno | Limitación del entorno; el fallo de CI coincide con SPF-023 | Sin ejecución E2E confirmada en CI | Ejecución local con Chromium 153 (paquete npm `@sparticuz/chromium`, fuera del repositorio) mediante `PLAYWRIGHT_CHROMIUM_PATH`: **16 aprobadas, 0 fallidas, 2 omitidas** | Re-ejecución del job `e2e` en CI tras la corrección | **Parcial** — confirmar en CI |
+| SPF-020 | MEDIO | `e2e/`, `playwright.config.ts` | El navegador oficial de Playwright no puede descargarse en el entorno de desarrollo (CDN fuera de los hosts permitidos). El job `e2e` de GitHub Actions del primer commit terminó en fallo y sus logs no son accesibles desde el entorno | Limitación del entorno; el fallo de CI coincide con SPF-023 | Sin ejecución E2E confirmada en CI | Ejecución local con Chromium 153 (paquete npm `@sparticuz/chromium`, fuera del repositorio) mediante `PLAYWRIGHT_CHROMIUM_PATH`: **16 aprobadas, 0 fallidas, 2 omitidas** | Job `e2e` en CI (PR #2) | **Resuelto** — tras la corrección SPF-023, el job `Pruebas E2E (Playwright)` pasa en GitHub Actions (ejecución 38176017183). El primer intento (ejecución 38175447258) falló; sus logs no son accesibles desde el entorno, y el fallo es coherente con SPF-023 |
 | SPF-021 | BAJO | Bundle de producción | JS +14,3 kB (raw) y CSS +4,3 kB por el formulario, la revisión y los estados | Funcionalidad nueva | Ligero incremento de transferencia (gzip +3,8 kB JS, +0,9 kB CSS) | Aceptable; el formulario se mantiene en el mismo chunk. Posible lazy-load futuro | Medición de build (§6) | Aceptado |
 | SPF-022 | MEDIO | `index.html`, `public/robots.txt`, `src/` | Sin `sitemap.xml`, `canonical` ni `og:url` | Dominio no confirmado | Indexación y previsualizaciones incompletas | No se generan URLs ficticias | — | **Pendiente** — dominio corporativo |
 | SPF-023 | ALTO | `src/components/contact/ContactForm.tsx` (acciones del formulario) | Pruebas E2E (Playwright, Chromium 153): tras un error de red, «Editar solicitud» no volvía al formulario; el envío se revalidaba por el botón «Revisar solicitud» recién insertado en la misma posición | Se intercambiaba el botón de envío por otro distinto durante el clic | Imposible corregir o reintentar tras un error de red: fallo en un flujo comercial principal | El botón de envío es ahora un único nodo cuyo texto cambia; «Editar» es un botón `type="button"` separado | `e2e/landing.spec.ts` («muestra error y conserva los datos ante fallo de red»), en ambos perfiles | Resuelto (verificado con E2E local) |
@@ -74,7 +74,7 @@ Estado Git inicial: árbol limpio; HEAD `8b7eb12` = `main`. El remoto contiene a
 | `8ce8f34` | Workflow de CI, cabeceras y pruebas Playwright |
 | `69eb2e7` | README, guía de despliegue y rollback |
 | `f2a0d07` | Eliminación del límite de antigüedad del formulario (ver nota) |
-| (siguiente) | Corrección SPF-023: botón de envío estable; `PLAYWRIGHT_CHROMIUM_PATH` en la configuración de Playwright |
+| `075b219` | Corrección SPF-023: botón de envío estable; `PLAYWRIGHT_CHROMIUM_PATH` en la configuración de Playwright |
 
 **Nota sobre `f2a0d07`**: durante la revisión se detectó que el servidor rechazaba formularios con más de 24 h, sin forma de regenerar la marca de tiempo sin recargar la página. Se eliminó ese máximo; se conserva el mínimo de 2 s como heurística.
 
@@ -137,6 +137,7 @@ Optimizaciones aplicadas: `fetchPriority="high"` en la imagen LCP; caché `immut
 | `npm test` | OK — **8 archivos, 63 pruebas aprobadas** |
 | `npm run build` | OK — `tsc -b` + `tsc -p tsconfig.server.json` + `vite build` |
 | `npm audit --audit-level=moderate` | OK — `found 0 vulnerabilities` |
+| CI en GitHub (PR #2, commit `075b219`) | Job de verificación: **pass**. Job E2E: **pass** |
 | `npx playwright test` (Chromium 153 vía `PLAYWRIGHT_CHROMIUM_PATH`, build de producción) | **16 aprobadas, 0 fallidas, 2 omitidas** (menú móvil en escritorio, omitidas por diseño). Antes de la corrección SPF-023: 2 fallidas |
 | Servidor de preview (`vite preview`) | `/` 200, JS 200, `/_headers` 200; `POST /api/contact` 404 (esperado: solo existe en la plataforma) |
 
@@ -162,7 +163,7 @@ Optimizaciones aplicadas: `fetchPriority="high"` en la imagen LCP; caché `immut
 
 - Rama de trabajo: `arena/de47b50a-web-spafiber` (la sesión está fijada a este nombre; la rama `improvement/spefiber-corporate-v2` solicitada en el brief no se creó).
 - Commits: ver §3.
-- Pull Request: ver el resultado de la creación en el informe final (URL real).
+- Pull Request: https://github.com/Luis10469/WEB_SPAFIBER-/pull/2 (hacia `main`, sin fusionar).
 - Merge: **no realizado**. Requiere aprobación del propietario.
 
 ## 9. Pendientes (decisiones o información del propietario)
@@ -188,7 +189,6 @@ Bloqueantes:
 
 1. Destino del webhook configurado y probado (sin él, el formulario no acepta solicitudes).
 2. Política de privacidad publicada y revisada (el formulario recopila datos personales).
-3. Ejecución verde del job E2E y de la CI en el Pull Request (confirmar tras la corrección SPF-023).
-4. Verificación de cabeceras en el dominio desplegado.
+3. Verificación de cabeceras en el dominio desplegado.
 
 No bloqueantes (recomendados antes del lanzamiento): dominio y SEO técnico completo, confirmación de tecnologías y rangos, medición de Core Web Vitals, revisión visual en navegador y auditoría de accesibilidad con herramientas automatizadas y lectores de pantalla.

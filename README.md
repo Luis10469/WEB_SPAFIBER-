@@ -104,7 +104,7 @@ Cobertura actual:
 - **SEO e identidad** (`tests/seo-and-identity.test.ts`).
 - **E2E** (`e2e/`): navegación, formulario (incluido error de red), modal con teclado y menú móvil en resolución móvil.
 
-Las pruebas E2E se ejecutan en el job `e2e` de GitHub Actions. Para ejecutarlas localmente con un Chromium ya instalado, define `PLAYWRIGHT_CHROMIUM_PATH=/ruta/a/chromium` antes de `npm run test:e2e`. Estado de ejecución: `docs/AUDITORIA.md` §7.
+Las pruebas E2E se ejecutan en el job `e2e` de GitHub Actions. Para ejecutarlas localmente con un Chromium ya instalado, define `PLAYWRIGHT_CHROMIUM_PATH=/ruta/a/chromium` antes de `npm run test:e2e`. Estado: en CI el job E2E pasa en el PR (ver `docs/AUDITORIA.md` §7).
 
 ## 8. Seguridad
 
