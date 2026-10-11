@@ -84,6 +84,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onRequestQuote }) => (
             width="615"
             height="324"
             loading="eager"
+            fetchPriority="high"
             decoding="async"
           />
           <figcaption className="hero-art__caption">

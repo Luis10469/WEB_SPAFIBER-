@@ -1,7 +1,7 @@
 import { TechnologyItem } from '../types';
 
-// Catálogo de referencia editable. Confirmar tecnologías y experiencia disponibles
-// con el equipo antes de presentarlo como un inventario corporativo definitivo.
+// Pendiente de confirmación por el propietario: validar experiencia real de cada tecnología
+// antes de publicarla como capacidad de SPEFIBER (ver docs/AUDITORIA.md, SPF-014).
 export const technologiesData: TechnologyItem[] = [
   { name: 'React', category: 'Interfaces', iconName: 'code' },
   { name: 'TypeScript', category: 'Interfaces', iconName: 'code' },
