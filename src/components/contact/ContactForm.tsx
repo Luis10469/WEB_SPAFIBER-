@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle2, Pencil, Send, X } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Pencil, Send, X } from 'lucide-react';
 import { BUDGET_OPTIONS, PLATFORM_OPTIONS, TIMELINE_OPTIONS } from '../../data/contactOptions';
 import { servicesData } from '../../data/services';
 import { companyData } from '../../data/company';
@@ -468,38 +468,37 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialServiceId, refe
         )}
       </div>
 
+      {/*
+        El botón de envío es siempre el mismo nodo: solo cambia su texto. Si se intercambiaran
+        botones distintos durante un clic, el navegador puede enviar el formulario por el nuevo.
+      */}
       <div className="contact-form__actions">
-        {reviewing ? (
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={submitting}
-              onClick={() => setReviewing(false)}
-              icon={<Pencil size={16} aria-hidden="true" />}
-            >
-              Editar solicitud
-            </Button>
-            <Button
-              type="submit"
-              size="lg"
-              disabled={submitting}
-              icon={submitting ? <span className="button-spinner" aria-hidden="true" /> : <Send size={16} aria-hidden="true" />}
-            >
-              {submitting ? 'Enviando solicitud…' : 'Confirmar y enviar'}
-            </Button>
-          </>
-        ) : (
+        {reviewing && (
           <Button
-            type="submit"
+            type="button"
+            variant="outline"
             size="lg"
             disabled={submitting}
-            icon={<ArrowRight size={16} aria-hidden="true" />}
+            onClick={() => setReviewing(false)}
+            icon={<Pencil size={16} aria-hidden="true" />}
           >
-            Revisar solicitud
+            Editar solicitud
           </Button>
         )}
+        <Button
+          type="submit"
+          size="lg"
+          disabled={submitting}
+          icon={
+            reviewing && submitting ? (
+              <span className="button-spinner" aria-hidden="true" />
+            ) : (
+              <Send size={16} aria-hidden="true" />
+            )
+          }
+        >
+          {reviewing ? (submitting ? 'Enviando solicitud…' : 'Confirmar y enviar') : 'Revisar solicitud'}
+        </Button>
       </div>
 
       <p className="contact-form__privacy">

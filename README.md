@@ -104,7 +104,7 @@ Cobertura actual:
 - **SEO e identidad** (`tests/seo-and-identity.test.ts`).
 - **E2E** (`e2e/`): navegación, formulario (incluido error de red), modal con teclado y menú móvil en resolución móvil.
 
-Estado de ejecución de las pruebas E2E: ver `docs/AUDITORIA.md` §7. Playwright no pudo descargar navegadores en el entorno de desarrollo; se ejecutan en el job `e2e` de GitHub Actions.
+Las pruebas E2E se ejecutan en el job `e2e` de GitHub Actions. Para ejecutarlas localmente con un Chromium ya instalado, define `PLAYWRIGHT_CHROMIUM_PATH=/ruta/a/chromium` antes de `npm run test:e2e`. Estado de ejecución: `docs/AUDITORIA.md` §7.
 
 ## 8. Seguridad
 
