@@ -1,6 +1,23 @@
+# Cabeceras para hosting compatible con el formato _headers (Cloudflare Pages / Netlify).
+# IMPORTANTE: verificar tras cada despliegue con `curl -sI https://<dominio>/` (ver docs/DEPLOYMENT.md).
+# Si el proveedor no aplica este archivo, las cabeceras de seguridad NO estarán activas.
+
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' mailto:; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; upgrade-insecure-requests
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; manifest-src 'self'; upgrade-insecure-requests
+
+# Activos con hash en el nombre (Vite): caché larga e inmutable.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Documento HTML y metadatos: revalidar en cada visita.
+/index.html
+  Cache-Control: no-cache
+
+/robots.txt
+  Cache-Control: public, max-age=3600
