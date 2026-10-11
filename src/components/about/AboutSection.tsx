@@ -1,67 +1,76 @@
 import React from 'react';
-import { Lightbulb, ShieldCheck, TrendingUp } from 'lucide-react';
+import {
+  CheckCircle2,
+  Handshake,
+  Scale,
+  ShieldCheck,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react';
 import { aboutData } from '../../data/about';
+import { PillarItem } from '../../types';
 
-export const AboutSection: React.FC = () => {
-  const renderPillarIcon = (iconName: string) => {
-    const iconClass = 'w-6 h-6 text-[#B45CFF]';
-    switch (iconName) {
-      case 'lightbulb':
-        return <Lightbulb className={iconClass} />;
-      case 'shield-check':
-        return <ShieldCheck className={iconClass} />;
-      case 'trending-up':
-        return <TrendingUp className={iconClass} />;
-      default:
-        return <Lightbulb className={iconClass} />;
-    }
-  };
-
-  return (
-    <section id="nosotros" className="py-20 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          
-          {/* Columna Izquierda: Título con línea de acento y narrativa */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                {aboutData.sectionTitle}
-              </h2>
-              <span className="h-0.5 w-12 bg-gradient-to-r from-[#B45CFF] to-transparent rounded-full shadow-[0_0_8px_#B45CFF]" />
-            </div>
-
-            <p className="text-base text-[#B5B0C2] leading-relaxed max-w-md">
-              {aboutData.description}
-            </p>
-          </div>
-
-          {/* Columna Derecha: 3 Pilares con íconos exactos */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {aboutData.pillars.map((pillar) => (
-              <div
-                key={pillar.id}
-                className="group p-5 rounded-2xl bg-[#140D26]/60 backdrop-blur-md border border-purple-500/20 hover:border-purple-400/50 hover:shadow-[0_0_25px_rgba(180,92,255,0.18)] transition-all duration-300"
-              >
-                <div className="p-3 w-fit rounded-xl bg-purple-950/60 border border-purple-500/30 mb-4 group-hover:scale-105 transition-transform shadow-[0_0_12px_rgba(139,61,255,0.2)]">
-                  {renderPillarIcon(pillar.iconName)}
-                </div>
-
-                <h3 className="text-base font-bold text-white mb-2 group-hover:text-[#D8B4FE] transition-colors">
-                  {pillar.title}
-                </h3>
-
-                <p className="text-xs sm:text-sm text-[#B5B0C2] leading-relaxed">
-                  {pillar.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-  );
+const pillarIcons: Record<PillarItem['iconName'], LucideIcon> = {
+  sparkles: Sparkles,
+  quality: CheckCircle2,
+  shield: ShieldCheck,
+  scale: Scale,
+  handshake: Handshake,
 };
+
+export const AboutSection: React.FC = () => (
+  <section id="nosotros" className="section section--about" aria-labelledby="about-title">
+    <div className="page-container">
+      <div className="about-intro">
+        <div className="about-intro__copy">
+          <p className="eyebrow">Sobre SPEFIBER</p>
+          <h2 id="about-title" className="section-title">
+            {aboutData.sectionTitle}
+          </h2>
+          <p className="about-intro__description">{aboutData.description}</p>
+        </div>
+        <aside className="vision-card" aria-label="Nuestra visión tecnológica">
+          <span className="vision-card__label">Nuestra visión</span>
+          <p>{aboutData.vision}</p>
+          <span className="vision-card__mark" aria-hidden="true">S</span>
+        </aside>
+      </div>
+
+      <div className="about-method">
+        <div className="about-method__heading">
+          <p className="eyebrow">Cómo abordamos un proyecto</p>
+          <h3>De una necesidad a una solución clara.</h3>
+          <p>Un proceso colaborativo, adaptable al alcance y al contexto de cada iniciativa.</p>
+        </div>
+        <ol className="method-steps">
+          {aboutData.methodology.map((step) => (
+            <li key={step.number} className="method-step">
+              <span className="method-step__number">{step.number}</span>
+              <div>
+                <h4>{step.title}</h4>
+                <p>{step.description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="pillars-heading">
+        <span className="eyebrow">Principios de trabajo</span>
+        <span className="pillars-heading__line" aria-hidden="true" />
+      </div>
+      <div className="pillars-grid">
+        {aboutData.pillars.map((pillar) => {
+          const Icon = pillarIcons[pillar.iconName];
+          return (
+            <article className="pillar-card" key={pillar.id}>
+              <span className="pillar-card__icon"><Icon size={19} aria-hidden="true" /></span>
+              <h3>{pillar.title}</h3>
+              <p>{pillar.description}</p>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+);

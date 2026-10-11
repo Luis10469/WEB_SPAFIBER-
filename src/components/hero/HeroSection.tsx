@@ -1,149 +1,103 @@
 import React from 'react';
-import { ArrowRight, Play, Zap, Users, BarChart3 } from 'lucide-react';
-import { companyData } from '../../data/company';
+import { ArrowDownRight, ArrowRight, Code2, Layers3, Sparkles } from 'lucide-react';
+import { companyData, heroHighlights } from '../../data/company';
 import { Button } from '../ui/Button';
-import heroGraphicImg from '../../assets/hero_composition.png';
+import heroGraphicImg from '../../assets/optimized/hero_composition.webp';
 
 interface HeroSectionProps {
-  onOpenQuote: () => void;
+  onRequestQuote: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuote }) => {
-  return (
-    <section
-      id="inicio"
-      className="relative min-h-[92vh] flex items-center pt-24 pb-16 overflow-hidden"
-    >
-      {/* Luces de fondo y atmósfera cyberpunk sutil */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#8B3DFF]/15 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[550px] h-[550px] bg-[#B45CFF]/15 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(#8B3DFF_1px,transparent_1px)] [background-size:32px_32px] opacity-[0.04] pointer-events-none" />
+const highlightIcons = {
+  sparkles: Sparkles,
+  code: Code2,
+  layers: Layers3,
+} as const;
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-        {/* Composición en 2 columnas Desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center pt-4 lg:pt-8">
-          
-          {/* Columna Izquierda: Mensaje Central & CTAs */}
-          <div className="lg:col-span-7 space-y-6 text-left">
-            
-            {/* Overline / Categoría */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-950/40 border border-purple-500/30 text-xs font-semibold tracking-wider text-[#C7C9D1] uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#B45CFF] animate-ping" />
-              <span>{companyData.tagline}</span>
-            </div>
+export const HeroSection: React.FC<HeroSectionProps> = ({ onRequestQuote }) => (
+  <section id="inicio" className="hero-section" aria-labelledby="hero-title">
+    <div className="hero-section__ambient hero-section__ambient--one" aria-hidden="true" />
+    <div className="hero-section__ambient hero-section__ambient--two" aria-hidden="true" />
+    <div className="hero-section__grid" aria-hidden="true" />
 
-            {/* Título Principal de Alto Impacto */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-white">
-              <span>{companyData.heroHeadline} </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#B45CFF] via-[#D8B4FE] to-[#8B3DFF] drop-shadow-[0_0_25px_rgba(180,92,255,0.4)]">
-                {companyData.heroHighlight}
-              </span>
-            </h1>
+    <div className="page-container hero-section__content">
+      <div className="hero-copy">
+        <p className="eyebrow hero-copy__eyebrow">
+          <span className="eyebrow__mark" aria-hidden="true" />
+          {companyData.tagline}
+        </p>
 
-            {/* Descripción Técnica Corporativa */}
-            <p className="text-base sm:text-lg text-[#B5B0C2] leading-relaxed max-w-xl font-normal">
-              {companyData.heroDescription}
-            </p>
+        <h1 id="hero-title" className="hero-title">
+          {companyData.heroHeadline}{' '}
+          <span className="text-gradient">{companyData.heroHighlight}</span>
+        </h1>
 
-            {/* Botones de Acción Inmediata */}
-            <div className="pt-2 flex flex-wrap items-center gap-4">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={onOpenQuote}
-                icon={<ArrowRight className="w-4 h-4" />}
-                iconPosition="right"
-                className="font-semibold"
-              >
-                Solicitar cotización
-              </Button>
+        <p className="hero-copy__description">{companyData.heroDescription}</p>
 
-              <Button
-                variant="secondary"
-                size="lg"
-                asAnchor
-                href="#servicios"
-                icon={<Play className="w-3.5 h-3.5 fill-current text-[#B45CFF]" />}
-                iconPosition="left"
-              >
-                Ver servicios
-              </Button>
-            </div>
-
-            {/* Minitarjetas / Indicadores de Confianza */}
-            <div className="pt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-purple-900/30">
-              
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-purple-950/60 border border-purple-500/30 text-[#B45CFF] shrink-0">
-                  <Zap className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-xs font-semibold text-white">Soluciones innovadoras</h2>
-                  <p className="text-[11px] text-[#B5B0C2] leading-tight mt-0.5">
-                    para un mundo en constante cambio
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-purple-950/60 border border-purple-500/30 text-[#B45CFF] shrink-0">
-                  <Users className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-xs font-semibold text-white">Tecnología a tu medida</h2>
-                  <p className="text-[11px] text-[#B5B0C2] leading-tight mt-0.5">
-                    desde startups hasta grandes empresas
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-purple-950/60 border border-purple-500/30 text-[#B45CFF] shrink-0">
-                  <BarChart3 className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-xs font-semibold text-white">Resultados reales</h2>
-                  <p className="text-[11px] text-[#B5B0C2] leading-tight mt-0.5">
-                    que impulsan tu crecimiento
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* Columna Derecha: Composición Tecnológica 3D & Arte Aprobado */}
-          <div className="lg:col-span-5 relative flex items-center justify-center">
-            
-            <div className="relative w-full max-w-lg lg:max-w-none group">
-              {/* Resplandor violeta concéntrico */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/30 to-[#8B3DFF]/30 rounded-3xl blur-2xl opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
-              
-              {/* Imagen compuesta fiel al boceto con animación sutil de flotación */}
-              <div className="relative rounded-2xl overflow-hidden border border-purple-500/30 bg-[#140D26]/40 backdrop-blur-sm shadow-[0_0_50px_rgba(139,61,255,0.25)]">
-                <img
-                  src={heroGraphicImg}
-                  alt="SPEFIBER S.A.S. - Emblema Tecnológico e Inteligencia Artificial"
-                  className="w-full h-auto object-cover transform hover:scale-[1.02] transition-transform duration-700 select-none pointer-events-none"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-              </div>
-
-              {/* Badges laterales de identidad (IDEAS / TECNOLOGÍA / PERSONAS / RESULTADOS) */}
-              <div className="hidden xl:flex absolute -right-6 top-1/2 -translate-y-1/2 flex-col gap-2 text-[10px] tracking-widest text-[#C7C9D1]/70 uppercase font-semibold">
-                <span className="hover:text-white transition-colors">IDEAS</span>
-                <span className="hover:text-white transition-colors">TECNOLOGÍA</span>
-                <span className="hover:text-white transition-colors">PERSONAS</span>
-                <span className="hover:text-white transition-colors">RESULTADOS</span>
-              </div>
-            </div>
-
-          </div>
-
+        <div className="hero-copy__actions">
+          <Button
+            asAnchor
+            href="#contacto"
+            onClick={onRequestQuote}
+            size="lg"
+            icon={<ArrowRight size={17} aria-hidden="true" />}
+          >
+            Solicitar cotización
+          </Button>
+          <Button
+            asAnchor
+            href="#servicios"
+            variant="secondary"
+            size="lg"
+            icon={<ArrowDownRight size={17} aria-hidden="true" />}
+          >
+            Explorar servicios
+          </Button>
         </div>
+
+        <ul className="hero-highlights" aria-label="Enfoque de SPEFIBER">
+          {heroHighlights.map((item) => {
+            const Icon = highlightIcons[item.icon];
+            return (
+              <li className="hero-highlight" key={item.id}>
+                <span className="hero-highlight__icon">
+                  <Icon size={17} aria-hidden="true" />
+                </span>
+                <span>
+                  <strong>{item.title}</strong>
+                  <span className="hero-highlight__description">{item.description}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-    </section>
-  );
-};
+
+      <div className="hero-art-wrap">
+        <div className="hero-art-wrap__halo" aria-hidden="true" />
+        <div className="hero-art-wrap__orbit hero-art-wrap__orbit--outer" aria-hidden="true" />
+        <div className="hero-art-wrap__orbit hero-art-wrap__orbit--inner" aria-hidden="true" />
+        <figure className="hero-art">
+          <img
+            src={heroGraphicImg}
+            alt="Isotipo metálico tridimensional de SPEFIBER S.A.S. sobre una composición tecnológica violeta"
+            width="615"
+            height="324"
+            loading="eager"
+            decoding="async"
+          />
+          <figcaption className="hero-art__caption">
+            <span className="hero-art__caption-mark" aria-hidden="true" />
+            <span>Ingeniería de software · Soluciones digitales</span>
+          </figcaption>
+        </figure>
+        <span className="hero-art__side-note" aria-hidden="true">IDEAS · CÓDIGO · EVOLUCIÓN</span>
+      </div>
+    </div>
+
+    <a className="hero-scroll-cue" href="#servicios" aria-label="Desplazarse a servicios">
+      <span>Descubrir</span>
+      <ArrowDownRight size={15} aria-hidden="true" />
+    </a>
+  </section>
+);

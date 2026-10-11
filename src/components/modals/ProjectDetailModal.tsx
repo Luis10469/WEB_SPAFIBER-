@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
-import { X, Sparkles, Check, ArrowRight, Layers, Tag } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { ArrowRight, ArrowUpRight, Check, Layers, Sparkles, Tag, X } from 'lucide-react';
 import { ProjectItem } from '../../types';
 import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
 
 interface ProjectDetailModalProps {
   project: ProjectItem | null;
@@ -15,125 +14,123 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   onClose,
   onQuoteSimilar,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && project) {
+    if (!project) return;
+
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
         onClose();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+      const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusableElements?.length) {
+        event.preventDefault();
+        dialogRef.current?.focus();
+        return;
+      }
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus();
+    };
   }, [project, onClose]);
 
   if (!project) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="project-modal-title"
+      className="dialog-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
     >
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#140D26] border border-purple-500/30 rounded-3xl shadow-[0_0_60px_rgba(139,61,255,0.4)] p-6 sm:p-8">
-        
-        {/* Botón Cerrar */}
+      <div
+        ref={dialogRef}
+        className="project-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="project-dialog-title"
+        tabIndex={-1}
+      >
         <button
-          onClick={onClose}
+          ref={closeButtonRef}
+          className="project-dialog__close"
           type="button"
-          className="absolute top-5 right-5 z-20 p-2 rounded-full text-[#B5B0C2] hover:text-white hover:bg-purple-900/40 border border-purple-500/20 transition-all focus:outline-none focus:ring-2 focus:ring-[#B45CFF]"
+          onClick={onClose}
           aria-label="Cerrar detalles del proyecto"
         >
-          <X className="w-5 h-5" />
+          <X size={19} aria-hidden="true" />
         </button>
 
-        {/* Imagen del Proyecto */}
-        <div className="relative aspect-[16/9] rounded-2xl overflow-hidden border border-purple-500/25 mb-6">
-          <img
-            src={project.image}
-            alt={project.title}
-            className="w-full h-full object-cover object-top"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#140D26] via-transparent to-transparent opacity-90" />
-          
-          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-purple-950/80 backdrop-blur-md text-[#D8B4FE] border border-purple-500/30">
-              {project.category}
-            </span>
-
-            {project.isDemoReference && (
-              <Badge variant="demo">
-                <Sparkles className="w-3 h-3 mr-1" />
-                Caso de Estudio de Referencia
-              </Badge>
-            )}
-          </div>
+        <div className="project-dialog__image-wrap">
+          <img src={project.image} alt="" width="270" height="96" />
+          <span className="project-dialog__status"><Sparkles size={14} aria-hidden="true" /> {project.status}</span>
         </div>
 
-        {/* Título y Resumen */}
-        <div className="space-y-4">
-          <div>
-            <h3 id="project-modal-title" className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              {project.title}
-            </h3>
-            <p className="text-xs text-[#B45CFF] font-semibold mt-1 flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5" />
-              {project.tags.join(' • ')}
-            </p>
+        <div className="project-dialog__content">
+          <p className="project-dialog__category"><Tag size={14} aria-hidden="true" /> {project.category}</p>
+          <h2 id="project-dialog-title">{project.title}</h2>
+          <p className="project-dialog__description">{project.fullDescription}</p>
+
+          <div className="project-dialog__scenario">
+            <span>Escenario</span>
+            <strong>{project.scenario}</strong>
           </div>
 
-          <p className="text-sm text-[#C7C9D1] leading-relaxed">
-            {project.fullDescription}
-          </p>
-
-          {/* Sector de Aplicación */}
-          <div className="p-4 rounded-xl bg-[#0E091C] border border-purple-500/20 text-xs">
-            <span className="text-[#B5B0C2] font-medium">Sector objetivo: </span>
-            <span className="text-white font-semibold">{project.clientType}</span>
-          </div>
-
-          {/* Stack Tecnológico */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white mb-2.5 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-[#B45CFF]" />
-              Stack Tecnológico Empleado
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {project.technologies.map((tech, idx) => (
-                <Badge key={idx} variant="purple">
-                  <Check className="w-3 h-3 mr-1 text-[#B45CFF]" />
-                  {tech}
-                </Badge>
+          <div className="project-dialog__technologies">
+            <h3><Layers size={15} aria-hidden="true" /> Tecnologías de referencia</h3>
+            <ul>
+              {project.technologies.map((technology) => (
+                <li key={technology}><Check size={13} aria-hidden="true" /> {technology}</li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          {/* Acciones */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center gap-3">
+          <div className="project-dialog__actions">
             <Button
-              variant="primary"
-              size="md"
+              asAnchor
+              href="#contacto"
               onClick={() => {
                 onClose();
                 onQuoteSimilar(project.title);
               }}
-              icon={<ArrowRight className="w-4 h-4" />}
-              iconPosition="right"
-              className="w-full sm:w-auto"
+              icon={<ArrowRight size={16} aria-hidden="true" />}
             >
-              Cotizar un proyecto similar
+              Conversar sobre una solución similar
             </Button>
-            <Button
-              variant="outline"
-              size="md"
-              onClick={onClose}
-              className="w-full sm:w-auto"
-            >
-              Cerrar
-            </Button>
+            {project.demoUrl && (
+              <a className="text-link" href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                Abrir demostración <ArrowUpRight size={15} aria-hidden="true" />
+              </a>
+            )}
           </div>
-
         </div>
-
       </div>
     </div>
   );
