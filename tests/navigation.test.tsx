@@ -19,4 +19,23 @@ describe('navegación responsive', () => {
     await user.keyboard('{Escape}');
     expect(screen.getByRole('button', { name: 'Abrir menú principal' })).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('mueve el foco al primer enlace al abrir y lo devuelve al botón con Escape', async () => {
+    const user = userEvent.setup();
+    render(<Navbar onRequestQuote={vi.fn()} />);
+    const toggle = screen.getByRole('button', { name: 'Abrir menú principal' });
+
+    await user.click(toggle);
+    expect(within(screen.getByRole('navigation', { name: 'Navegación móvil' })).getByRole('link', { name: 'Inicio' })).toHaveFocus();
+
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('button', { name: 'Abrir menú principal' })).toHaveFocus();
+  });
+
+  it('oculta a tecnologías asistivas los enlaces del menú móvil cuando está cerrado', () => {
+    render(<Navbar onRequestQuote={vi.fn()} />);
+    const mobileNav = document.getElementById('mobile-navigation');
+    expect(mobileNav).toHaveAttribute('aria-hidden', 'true');
+    expect(mobileNav).not.toHaveClass('mobile-navigation--open');
+  });
 });
