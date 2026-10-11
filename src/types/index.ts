@@ -1,22 +1,32 @@
 export interface NavItem {
   label: string;
   href: string;
-  isButton?: boolean;
+  id: string;
 }
+
+export type ServiceIconName =
+  | 'code'
+  | 'smartphone'
+  | 'brain'
+  | 'workflow'
+  | 'plug'
+  | 'building';
 
 export interface ServiceItem {
   id: string;
   title: string;
   description: string;
-  iconName: 'code' | 'smartphone' | 'brain' | 'cog' | 'api' | 'cloud';
-  features?: string[];
+  iconName: ServiceIconName;
+  features: string[];
 }
+
+export type PillarIconName = 'sparkles' | 'quality' | 'shield' | 'scale' | 'handshake';
 
 export interface PillarItem {
   id: string;
   title: string;
   description: string;
-  iconName: 'lightbulb' | 'shield-check' | 'trending-up';
+  iconName: PillarIconName;
 }
 
 export interface ProjectItem {
@@ -27,9 +37,11 @@ export interface ProjectItem {
   image: string;
   summary: string;
   fullDescription: string;
-  clientType: string;
+  scenario: string;
   technologies: string[];
+  status: string;
   isDemoReference: boolean;
+  demoUrl?: string;
 }
 
 export interface CompanyInfo {
@@ -40,21 +52,29 @@ export interface CompanyInfo {
   heroHeadline: string;
   heroHighlight: string;
   heroDescription: string;
-  emailContact: string;
-  phoneContact?: string;
-  address?: string;
+  contactEmail?: string;
   socialLinks: {
     linkedin?: string;
     instagram?: string;
     github?: string;
     youtube?: string;
   };
+  legalLinks: {
+    privacy?: string;
+    terms?: string;
+  };
 }
 
 export interface ContactFormData {
   fullName: string;
   email: string;
-  company?: string;
+  company: string;
   serviceId: string;
   message: string;
+}
+
+export interface TechnologyItem {
+  name: string;
+  category: string;
+  iconName: 'code' | 'layers' | 'database' | 'cpu' | 'workflow';
 }

@@ -1,40 +1,68 @@
 import { CompanyInfo } from '../types';
 
+const optionalEmail = (value: string | undefined) => {
+  const email = value?.trim();
+  return email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : undefined;
+};
+
+const optionalExternalUrl = (value: string | undefined) => {
+  const candidate = value?.trim();
+  if (!candidate) return undefined;
+  try {
+    const parsed = new URL(candidate);
+    return parsed.protocol === 'https:' ? parsed.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const optionalLegalUrl = (value: string | undefined) => {
+  const candidate = value?.trim();
+  if (!candidate) return undefined;
+  if (candidate.startsWith('/') && !candidate.startsWith('//') && !candidate.includes('\\')) return candidate;
+  return optionalExternalUrl(candidate);
+};
+
 export const companyData: CompanyInfo = {
   legalName: 'SPEFIBER S.A.S.',
   shortName: 'SPEFIBER',
-  sector: 'Desarrollo de software y tecnología',
+  sector: 'Ingeniería de software y soluciones digitales',
   tagline: 'TECNOLOGÍA QUE IMPULSA TU FUTURO',
   heroHeadline: 'Transformamos ideas en',
-  heroHighlight: 'soluciones digitales',
+  heroHighlight: 'soluciones digitales.',
   heroDescription:
-    'Desarrollamos software a medida, aplicaciones móviles, plataformas web, soluciones de inteligencia artificial y automatización para llevar tu negocio al siguiente nivel.',
-  emailContact: 'contacto@spefiber.com', // Configurable para producción
+    'Desarrollamos software, aplicaciones y soluciones tecnológicas diseñadas para impulsar la innovación y el crecimiento empresarial.',
+  // Los datos opcionales solo aparecen si SPEFIBER los configura con información verificada.
+  contactEmail: optionalEmail(import.meta.env.VITE_CONTACT_EMAIL),
   socialLinks: {
-    linkedin: 'https://linkedin.com',
-    instagram: 'https://instagram.com',
-    github: 'https://github.com',
-    youtube: 'https://youtube.com',
+    linkedin: optionalExternalUrl(import.meta.env.VITE_SOCIAL_LINKEDIN),
+    instagram: optionalExternalUrl(import.meta.env.VITE_SOCIAL_INSTAGRAM),
+    github: optionalExternalUrl(import.meta.env.VITE_SOCIAL_GITHUB),
+    youtube: optionalExternalUrl(import.meta.env.VITE_SOCIAL_YOUTUBE),
+  },
+  legalLinks: {
+    privacy: optionalLegalUrl(import.meta.env.VITE_PRIVACY_URL),
+    terms: optionalLegalUrl(import.meta.env.VITE_TERMS_URL),
   },
 };
 
-export const heroStats = [
+export const heroHighlights = [
   {
-    id: 'innovative',
-    title: 'Soluciones innovadoras',
-    subtitle: 'para un mundo en constante cambio',
-    icon: 'zap',
+    id: 'innovation',
+    title: 'Innovación aplicada',
+    description: 'Tecnología alineada con objetivos reales.',
+    icon: 'sparkles',
   },
   {
-    id: 'custom',
-    title: 'Tecnología a tu medida',
-    subtitle: 'desde startups hasta grandes empresas',
-    icon: 'users',
+    id: 'engineering',
+    title: 'Ingeniería a medida',
+    description: 'Soluciones pensadas para cada contexto.',
+    icon: 'code',
   },
   {
-    id: 'real-results',
-    title: 'Resultados reales',
-    subtitle: 'que impulsan tu crecimiento',
-    icon: 'bar-chart-3',
+    id: 'growth',
+    title: 'Preparados para crecer',
+    description: 'Arquitecturas con visión de largo plazo.',
+    icon: 'layers',
   },
-];
+] as const;

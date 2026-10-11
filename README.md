@@ -1,159 +1,132 @@
-# SPEFIBER S.A.S. — Landing Page Corporativa (v1.0)
+# SPEFIBER S.A.S. — sitio web corporativo
 
-Landing page corporativa moderna, de alto rendimiento y diseño futurista desarrollada para **SPEFIBER S.A.S.**, empresa especializada en desarrollo de software, aplicaciones móviles, inteligencia artificial y automatización de procesos empresariales.
+Landing page responsive para SPEFIBER S.A.S., empresa de ingeniería de software, soluciones digitales e innovación tecnológica. El contenido y los recursos visuales se centran en software; no se ofrecen ni se representan servicios de Wi-Fi, fibra óptica o telecomunicaciones.
 
----
+## Requisitos
 
-## 1. Identidad Corporativa & Paleta Visual
+- Node.js 20 o superior (el proyecto se validó con Node 22).
+- npm.
 
-- **Razón Social:** SPEFIBER S.A.S.
-- **Sector:** Desarrollo de software y soluciones tecnológicas.
-- **Fondo Principal:** `#090711`
-- **Fondo Secundario:** `#140D26`
-- **Morado Corporativo:** `#8B3DFF`
-- **Morado Luminoso:** `#B45CFF`
-- **Plateado:** `#C7C9D1`
-- **Texto Principal:** `#FFFFFF`
-- **Texto Secundario:** `#B5B0C2`
+## Ejecución local
 
-> **Nota de Gobernanza:** SPEFIBER no es un proveedor de internet ni telecomunicaciones. Toda la comunicación y los componentes visuales reflejan estrictamente desarrollo de software de ingeniería avanzada.
+```bash
+npm ci
+npm run dev
+```
 
----
+Vite escucha en `0.0.0.0:3000`. Para validar el build localmente:
 
-## 2. Arquitectura del Proyecto
+```bash
+npm run lint
+npm test
+npm run build
+npm run preview
+```
+
+`npm run preview` sirve el build en el puerto 4173. No se configura ni ejecuta un despliegue de producción.
+
+## Estructura
 
 ```text
-Spefiber_landi/
-├── public/                     # Assets públicos estáticos y favicon
-│   └── logo_Spafiber.png
-├── src/
-│   ├── assets/                 # Logotipos y gráficos optimizados
-│   │   ├── hero_composition.png
-│   │   ├── nav_logo.png
-│   │   ├── cta_skyline.png
-│   │   └── projects/           # Thumbnails de casos de estudio
-│   │       ├── project_1_erp.png
-│   │       ├── project_2_mobile.png
-│   │       ├── project_3_ai.png
-│   │       └── project_4_ecommerce.png
-│   ├── components/
-│   │   ├── layout/             # Header / Navbar y Footer
-│   │   │   ├── Navbar.tsx
-│   │   │   └── Footer.tsx
-│   │   ├── hero/               # Hero section en 2 columnas
-│   │   │   └── HeroSection.tsx
-│   │   ├── services/           # Módulo de servicios y tarjetas interactivas
-│   │   │   ├── ServicesSection.tsx
-│   │   │   └── ServiceCard.tsx
-│   │   ├── about/              # Sección ¿Por qué SPEFIBER S.A.S.?
-│   │   │   └── AboutSection.tsx
-│   │   ├── portfolio/          # Portafolio de proyectos destacados
-│   │   │   ├── PortfolioSection.tsx
-│   │   │   └── ProjectCard.tsx
-│   │   ├── cta/                # Banner Call to Action panorámico
-│   │   │   └── CTASection.tsx
-│   │   ├── modals/             # Diálogos accesibles e interactivos
-│   │   │   ├── ContactModal.tsx       # Solicitud de cotización
-│   │   │   ├── ProjectDetailModal.tsx # Especificación técnica del proyecto
-│   │   │   └── SearchModal.tsx        # Búsqueda instantánea (Ctrl+K)
-│   │   └── ui/                 # Primitivas de UI accesibles
-│   │       ├── Button.tsx
-│   │       └── Badge.tsx
-│   ├── data/                   # Datos desacoplados y configurables
-│   │   ├── company.ts          # Datos corporativos y redes
-│   │   ├── services.ts         # Catálogo de servicios
-│   │   ├── about.ts            # Pilares y propuesta de valor
-│   │   └── projects.ts         # Casos de estudio de referencia
-│   ├── styles/
-│   │   └── index.css           # Directivas Tailwind, glassmorphism y glows
-│   ├── types/
-│   │   └── index.ts            # Interfaces TypeScript
-│   ├── App.tsx                 # Ensamble de la página y gestión de estado
-│   ├── main.tsx                # Punto de entrada React 18
-│   └── vite-env.d.ts
-├── index.html                  # HTML5 semántico con Open Graph y SEO
-├── package.json
-├── postcss.config.js
-├── tailwind.config.js
-├── tsconfig.json
-└── vite.config.ts
+src/
+├── assets/                 # Recursos fuente y variantes WebP optimizadas
+├── components/
+│   ├── about/              # Empresa, metodología y principios
+│   ├── contact/            # Formulario comercial y estados reales
+│   ├── cta/                # Llamado a la acción
+│   ├── hero/               # Propuesta principal e isotipo existente
+│   ├── layout/             # Navegación responsive y footer
+│   ├── modals/             # Detalle accesible de concepto de proyecto
+│   ├── portfolio/          # Tarjetas de proyectos demostrativos
+│   ├── services/           # Catálogo de seis servicios
+│   ├── technologies/       # Tecnologías de referencia configurables
+│   └── ui/                 # Primitivas reutilizables
+├── data/                   # Datos de empresa, servicios, proyectos y stack
+├── styles/index.css        # Tokens y estilos responsive
+├── App.tsx                 # Composición de la landing page
+└── main.tsx                # Entrada React
+public/
+├── _headers                # Ejemplo de cabeceras para hosting compatible
+├── favicon.png             # Recorte del isotipo raster existente
+├── hero_composition.webp   # Vista previa social
+└── robots.txt
 ```
 
----
+No se usa React Router: el sitio es una única página y su navegación funciona mediante anclas. Los componentes están separados por módulo; los datos editables viven en `src/data/`. Los estilos emplean tokens CSS para mantener la paleta, superficies, radios, sombras, ritmo, movimiento y puntos de quiebre en un solo sistema.
 
-## 3. Requisitos e Instalación
+## Configuración comercial
 
-### Requisitos Previos
-- **Node.js**: v18.0.0 o superior (verificado con v24.13.0).
-- **npm**: v9.0.0 o superior.
+Copia `.env.example` a `.env.local` y configura solo datos aprobados. `.env.local` está excluido de Git.
 
-### Instalación de Dependencias
-```bash
-npm install
-```
+### Recepción de cotizaciones
 
----
+El formulario **no simula envíos**. Por defecto informa que no se ha enviado ni almacenado nada.
 
-## 4. Scripts Disponibles
+Opción recomendada: configurar `VITE_CONTACT_ENDPOINT` con una ruta del mismo origen (por ejemplo, `/api/contact`) o URL HTTPS. La variable `VITE_*` es pública en el bundle: contiene únicamente una dirección de endpoint, nunca secretos. El servicio del servidor debe:
 
-- **Servidor de desarrollo local:**
-  ```bash
-  npm run dev
-  ```
-  Inicia el servidor en `http://localhost:3000` con hot reload instantáneo.
+- validar tamaño y contenido de todos los campos;
+- comprobar el origen permitido y limitar la tasa de peticiones;
+- añadir protección anti-spam adecuada;
+- manejar errores sin revelar datos internos;
+- evitar registrar información personal innecesaria;
+- cumplir los requisitos de tratamiento de datos aplicables.
 
-- **Compilación de producción:**
-  ```bash
-  npm run build
-  ```
-  Ejecuta verificación estricta de TypeScript (`tsc -b`) y minificación optimizada con Vite en `/dist`.
+Solo una respuesta HTTP exitosa del endpoint muestra confirmación de aceptación. Para endpoints HTTPS externos, configura CORS en el servidor y ajusta `connect-src` en `public/_headers` para permitir exactamente ese origen.
 
-- **Previsualización de la compilación:**
-  ```bash
-  npm run preview
-  ```
-  Sirve los archivos compilados de producción localmente para pruebas de rendimiento.
+Como alternativa, `VITE_CONTACT_EMAIL` abre el cliente de correo del visitante con el mensaje preparado; el usuario todavía debe revisarlo y enviarlo. La página aclara que SPEFIBER no lo ha recibido hasta ese momento. No se incluye una dirección de correo inventada por defecto.
 
----
+### Redes y enlaces legales
 
-## 5. Guía de Personalización y Configuración
+Configura `VITE_SOCIAL_LINKEDIN`, `VITE_SOCIAL_INSTAGRAM`, `VITE_SOCIAL_GITHUB` y `VITE_SOCIAL_YOUTUBE` solo con perfiles corporativos verificados. Las URLs externas no HTTPS se descartan. `VITE_PRIVACY_URL` y `VITE_TERMS_URL` aparecen únicamente cuando se proporcionan rutas locales o enlaces HTTPS reales; no se crean enlaces legales ficticios.
 
-Los datos de la empresa están completamente desacoplados del código visual en la carpeta `src/data/`:
+## Contenido editable
 
-1. **Datos de Contacto y Redes (`src/data/company.ts`)**:
-   - `emailContact`: Dirección de correo corporativo para recibir solicitudes.
-   - `socialLinks`: URLs de LinkedIn, Instagram, GitHub y YouTube.
-   - `legalName`, `sector`, `tagline`, `heroDescription`.
+- `src/data/services.ts`: los seis servicios, descripciones e iconos.
+- `src/data/about.ts`: relato, visión, metodología y pilares.
+- `src/data/projects.ts`: nombres, escenarios, descripciones y stacks de los conceptos.
+- `src/data/technologies.ts`: inventario de referencia.
+- `src/data/company.ts`: identidad de marca y valores opcionales desde variables de entorno.
 
-2. **Servicios (`src/data/services.ts`)**:
-   - Modifica o agrega servicios al catálogo con su título, descripción, icono y características.
+El portafolio actual está expresamente marcado como **conceptos demostrativos**: no atribuye clientes, trabajo entregado ni resultados a SPEFIBER. Sustituirlos por casos aprobados y capturas de alta resolución antes de publicar un portafolio real. La sección de tecnologías también se identifica como referencia editable y debe validarse con el equipo.
 
-3. **Proyectos del Portafolio (`src/data/projects.ts`)**:
-   - Cada proyecto cuenta con la propiedad `isDemoReference: true` para identificar claramente los proyectos de referencia mientras se incorporan casos con aprobación explícita de clientes.
+## Identidad visual
 
----
+La navegación y el pie usan el lockup raster disponible y el hero incorpora la composición metálica existente con la S tridimensional. Se conserva su proporción y no se reemplaza por una letra genérica. El isotipo entregado no es un SVG vectorial; para producción conviene solicitar el arte oficial vectorial, con transparencia, versiones claras/oscuras y variantes de uso pequeño. Las imágenes de proyectos actuales son muestras de baja resolución, no capturas de trabajos aprobados.
 
-## 6. Reporte de Calidad y Validación (QA)
+## SEO, accesibilidad y seguridad
 
-| Validación | Herramienta | Resultado |
-|---|---|---|
-| **Verificación de Tipos** | `tsc -b` | 0 errores. Tipado estricto verificado. |
-| **Compilación de Producción** | `vite build` | Exitosa (`dist/` generado en 13.45s). |
-| **Navegación por Anclas** | Header spy & Scroll | Desplazamiento suave a `#inicio`, `#servicios`, `#nosotros`, `#proyectos`, `#contacto`. |
-| **Responsive Web Design** | Tailwind Breakpoints | Mobile (sm: 640px), Tablet (md: 768px), Laptop (lg: 1024px), Desktop (xl: 1280px). |
-| **Accesibilidad** | WAI-ARIA | Modales con `role="dialog"`, `aria-modal="true"`, foco controlado y atajo `Esc`. |
-| **Reducción de Movimiento** | Media query | Respeta `prefers-reduced-motion: reduce`. |
-| **Comportamiento de CTA** | Modales activos | Todos los botones abren formularios funcionales con validación y respuesta de éxito. |
+- HTML en español, título, descripción, Open Graph, Twitter Card, `robots.txt` y favicon.
+- No se fija un dominio canónico ni se crea `sitemap.xml` hasta confirmar el dominio oficial. Antes de publicar, convertir la imagen social y los metadatos relativos a URLs absolutas y generar el sitemap del dominio real.
+- Navegación por anclas, enlace para saltar al contenido, foco visible, controles con nombre accesible, menú móvil con Escape, diálogo de proyecto con cierre por Escape y gestión básica del foco.
+- La animación se limita a transiciones cortas y el CSS respeta `prefers-reduced-motion`.
+- `public/_headers` ofrece CSP y cabeceras de seguridad como base para hosting que soporte el formato `_headers`. Revísalo para el proveedor final, especialmente `connect-src` si el endpoint no es del mismo origen.
+- No se cargan fuentes de terceros, no hay credenciales ni datos personales de ejemplo y no se persiste el contenido del formulario en el navegador.
 
----
+## QA ejecutado
 
-## 7. Propuestas de Mejora para Versión 2.0
+| Verificación | Resultado |
+|---|---|
+| `npm run build` (TypeScript estricto + Vite) | Correcto |
+| `npm run lint` (ESLint) | Correcto, sin errores ni advertencias |
+| `npm test` (Vitest + Testing Library) | 5 pruebas aprobadas: envío sin configuración, endpoint exitoso, endpoint fallido, validación de email y menú responsive/teclado |
+| `npm audit --audit-level=moderate` | 0 vulnerabilidades reportadas |
+| `git diff --check` | Correcto |
+| Smoke test del servidor Vite y recursos públicos | HTTP 200 para HTML, favicon y arte social |
 
-1. **Integración con Servidor de Envío (Email API)**:
-   - Conectar el formulario de cotización con un endpoint seguro (Resend, SendGrid o Cloudflare Worker) con validación de captcha y reintentos idempotentes.
-2. **Blog Corporativo / Recursos Técnicos**:
-   - Módulo de artículos sobre IA, arquitecturas web y casos de éxito en formato Markdown/MDX.
-3. **Internacionalización (i18n)**:
-   - Soporte multilingüe (Español / Inglés) para expansión internacional.
-4. **Telemetría y Analítica de Conversión**:
-   - Configuración de eventos de conversión (Google Analytics 4 / Plausible) sin cookies invasivas.
+La matriz de diseño contempla 320, 375, 768, 1024 y 1440 px; no se ejecutó una sesión automatizada de navegador real, ni una auditoría axe/WCAG, ni mediciones de Core Web Vitals. Por eso no se afirma conformidad WCAG 2.2 AA ni resultados LCP/INP/CLS: deben verificarse en los navegadores y el hosting finales.
+
+El build produce aproximadamente 193 kB de JavaScript (60 kB gzip), 43 kB de CSS (9.5 kB gzip) y recursos WebP optimizados para el hero, CTA y tarjetas. Son tamaños de artefacto, no mediciones de rendimiento de usuario real.
+
+## Siguiente iteración antes de producción
+
+1. Recibir y validar el SVG oficial del isotipo y los logos corporativos.
+2. Confirmar dominio, correo, redes, enlaces legales y política de privacidad.
+3. Conectar y probar un endpoint real con controles server-side; probar también errores, rate limiting y protección anti-spam.
+4. Sustituir conceptos y recursos de ejemplo por proyectos/capturas aprobados.
+5. Confirmar la lista de tecnologías con SPEFIBER.
+6. Ejecutar pruebas E2E con Playwright, auditoría automatizada de accesibilidad y Lighthouse/CWV en los breakpoints y navegadores objetivo.
+7. Ajustar metadatos, sitemap, robots y cabeceras al proveedor de despliegue elegido.
+
+## Deploy
+
+El repositorio queda preparado para generar estáticos con `npm run build`; los archivos resultantes quedan en `dist/`. No se ha desplegado ni modificado infraestructura de producción. Verifica las variables, CSP, políticas de datos y URLs de SEO antes de publicar.
