@@ -9,19 +9,24 @@ import { CTASection } from './components/cta/CTASection';
 import { ContactSection } from './components/contact/ContactSection';
 import { Footer } from './components/layout/Footer';
 import { ProjectDetailModal } from './components/modals/ProjectDetailModal';
-import { ProjectItem } from './types';
+import { ProjectItem, ProjectReference } from './types';
 
 export function App() {
   const [selectedServiceId, setSelectedServiceId] = useState('custom');
+  const [referenceProject, setReferenceProject] = useState<ProjectReference | null>(null);
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null);
 
   const handleRequestQuote = useCallback((serviceId = 'custom') => {
     setSelectedServiceId(serviceId);
   }, []);
 
-  const handleQuoteSimilar = useCallback(() => {
-    setSelectedServiceId('custom');
+  const handleQuoteSimilar = useCallback((project: ProjectItem) => {
+    setReferenceProject({ id: project.id, title: project.title });
   }, []);
+
+  const handleClearReference = useCallback(() => setReferenceProject(null), []);
+
+  const handleCloseProject = useCallback(() => setActiveProject(null), []);
 
   return (
     <div className="app-shell">
@@ -35,13 +40,17 @@ export function App() {
         <PortfolioSection onSelectProject={setActiveProject} />
         <TechnologiesSection />
         <CTASection />
-        <ContactSection initialServiceId={selectedServiceId} />
+        <ContactSection
+          initialServiceId={selectedServiceId}
+          referenceProject={referenceProject}
+          onClearReferenceProject={handleClearReference}
+        />
       </main>
 
       <Footer />
       <ProjectDetailModal
         project={activeProject}
-        onClose={() => setActiveProject(null)}
+        onClose={handleCloseProject}
         onQuoteSimilar={handleQuoteSimilar}
       />
     </div>
