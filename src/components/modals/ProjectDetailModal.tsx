@@ -6,20 +6,27 @@ import { Button } from '../ui/Button';
 interface ProjectDetailModalProps {
   project: ProjectItem | null;
   onClose: () => void;
-  onQuoteSimilar: (projectTitle: string) => void;
+  onQuoteSimilar: (project: ProjectItem) => void;
 }
 
-export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
-  project,
-  onClose,
-  onQuoteSimilar,
-}) => {
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({ project, onClose, onQuoteSimilar }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  // Referencia estable: evita que el efecto de foco se vuelva a ejecutar en cada render del padre.
+  const onCloseRef = useRef(onClose);
+  const skipFocusRestoreRef = useRef(false);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!project) return;
 
+    skipFocusRestoreRef.current = false;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -28,14 +35,12 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
       if (event.key !== 'Tab') return;
-      const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      );
+      const focusableElements = dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
       if (!focusableElements?.length) {
         event.preventDefault();
         dialogRef.current?.focus();
@@ -57,9 +62,9 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = previousOverflow;
-      previousFocus?.focus();
+      if (!skipFocusRestoreRef.current && previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [project, onClose]);
+  }, [project]);
 
   if (!project) return null;
 
@@ -76,6 +81,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="project-dialog-title"
+        aria-describedby="project-dialog-description"
         tabIndex={-1}
       >
         <button
@@ -96,7 +102,7 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
         <div className="project-dialog__content">
           <p className="project-dialog__category"><Tag size={14} aria-hidden="true" /> {project.category}</p>
           <h2 id="project-dialog-title">{project.title}</h2>
-          <p className="project-dialog__description">{project.fullDescription}</p>
+          <p id="project-dialog-description" className="project-dialog__description">{project.fullDescription}</p>
 
           <div className="project-dialog__scenario">
             <span>Escenario</span>
@@ -117,12 +123,14 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
               asAnchor
               href="#contacto"
               onClick={() => {
+                // El foco pasa al formulario; no debe volver a la tarjeta, que queda lejos en la página.
+                skipFocusRestoreRef.current = true;
+                onQuoteSimilar(project);
                 onClose();
-                onQuoteSimilar(project.title);
               }}
               icon={<ArrowRight size={16} aria-hidden="true" />}
             >
-              Conversar sobre una solución similar
+              Solicitar una solución similar
             </Button>
             {project.demoUrl && (
               <a className="text-link" href={project.demoUrl} target="_blank" rel="noopener noreferrer">

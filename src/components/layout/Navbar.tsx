@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Menu, X } from 'lucide-react';
 import { companyData } from '../../data/company';
 import { NavItem } from '../../types';
@@ -22,6 +22,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onRequestQuote }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const mobileNavRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const updateScrollState = () => setIsScrolled(window.scrollY > 12);
@@ -52,11 +54,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onRequestQuote }) => {
     return () => observer.disconnect();
   }, []);
 
+  // Al abrir el menú móvil, el foco pasa al primer enlace.
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      mobileNavRef.current?.querySelector<HTMLElement>('.nav-link--mobile')?.focus();
+    }
+  }, [mobileMenuOpen]);
+
   useEffect(() => {
     if (!mobileMenuOpen) return;
 
+    // Escape cierra el menú y devuelve el foco al botón que lo abrió.
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMobileMenuOpen(false);
+      if (event.key !== 'Escape') return;
+      setMobileMenuOpen(false);
+      menuToggleRef.current?.focus();
     };
     const closeOnResize = () => {
       if (window.innerWidth >= 1024) setMobileMenuOpen(false);
@@ -124,6 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onRequestQuote }) => {
             aria-label={mobileMenuOpen ? 'Cerrar menú principal' : 'Abrir menú principal'}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-navigation"
+            ref={menuToggleRef}
             onClick={() => setMobileMenuOpen((open) => !open)}
           >
             {mobileMenuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
@@ -131,8 +144,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onRequestQuote }) => {
         </div>
       </div>
 
+      {/* Cerrado: aria-hidden + visibility:hidden (CSS) impiden foco y lectura de sus enlaces. */}
       <nav
         id="mobile-navigation"
+        ref={mobileNavRef}
         className={`mobile-navigation${mobileMenuOpen ? ' mobile-navigation--open' : ''}`}
         aria-label="Navegación móvil"
         aria-hidden={!mobileMenuOpen}

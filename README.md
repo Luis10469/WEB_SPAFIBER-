@@ -1,132 +1,151 @@
-# SPEFIBER S.A.S. — sitio web corporativo
+# SPEFIBER S.A.S. — sitio web corporativo (v2)
 
-Landing page responsive para SPEFIBER S.A.S., empresa de ingeniería de software, soluciones digitales e innovación tecnológica. El contenido y los recursos visuales se centran en software; no se ofrecen ni se representan servicios de Wi-Fi, fibra óptica o telecomunicaciones.
+Sitio corporativo de **SPEFIBER S.A.S.**, empresa de ingeniería de software y soluciones digitales: desarrollo web, aplicaciones móviles, inteligencia artificial, automatización, backend/APIs y software empresarial.
 
-## Requisitos
+> SPEFIBER no es proveedor de Wi-Fi, fibra óptica ni telecomunicaciones. El contenido, las imágenes y el código de este repositorio se limitan a software y soluciones digitales.
 
-- Node.js 20 o superior (el proyecto se validó con Node 22).
-- npm.
+Documentos relacionados:
 
-## Ejecución local
+- [`docs/AUDITORIA.md`](docs/AUDITORIA.md) — hallazgos, severidad, evidencia, resolución y resultados de validación.
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — despliegue, configuración de secretos, verificación de cabeceras y rollback.
+
+## 1. Arquitectura
+
+```text
+Navegador (SPA React + Vite)            Servidor (Cloudflare Pages Functions)
+─────────────────────────────           ─────────────────────────────────────
+src/                                    functions/api/contact.ts   ← adaptador HTTP
+ ├─ components/  (secciones y UI)       server/contact/
+ ├─ data/        (contenido editable)     ├─ handler.ts   validación, origen, límites,
+ ├─ lib/contact/                         │                antispam, webhook con timeout
+ │   ├─ validation.ts  ← reglas únicas   └─ rateLimit.ts  límite por IP (ventana fija)
+ │   └─ submitContact.ts ← cliente (timeout, cancelación)
+ └─ styles/index.css (tokens y estados)  POST /api/contact → 202 solo si se entregó
+```
+
+- **Frontend**: una única página con anclas (sin router). Componentes funcionales tipados, sin estado global.
+- **Validación compartida**: `src/lib/contact/validation.ts` se usa en el navegador (retroalimentación inmediata) y en el servidor (fuente de verdad). Ningún dato del cliente se confía sin validar.
+- **Receptor**: `server/contact/handler.ts` usa APIs Web estándar (`Request`/`Response`); es portable a Cloudflare Pages, Netlify o Node 18+. La adaptación elegida es Cloudflare Pages Functions (ver `docs/DEPLOYMENT.md`).
+- **Sin dependencias de runtime nuevas**: solo `react`, `react-dom` y `lucide-react`.
+
+## 2. Tecnologías
+
+| Área | Tecnología |
+| --- | --- |
+| UI | React 18, TypeScript (estricto) |
+| Build | Vite 6, `tsc -b` |
+| Estilos | CSS con tokens (variables) en `src/styles/index.css` |
+| Iconos | lucide-react (tree-shaken) |
+| Pruebas unitarias/integración | Vitest 5, Testing Library, jsdom |
+| Pruebas E2E | Playwright (ejecutadas en CI) |
+| Calidad | ESLint 10 + typescript-eslint, react-hooks |
+| Receptor | Cloudflare Pages Functions (Web APIs estándar) |
+
+## 3. Requisitos
+
+- Node.js **22** (LTS; el proyecto se valida con Node 22.22). Mínimo práctico: Node 20.
+- npm 10+.
+- Para E2E: navegadores de Playwright (`npx playwright install chromium`).
+
+## 4. Instalación y ejecución local
 
 ```bash
 npm ci
-npm run dev
+npm run dev          # http://localhost:3000 (escucha en 0.0.0.0)
 ```
 
-Vite escucha en `0.0.0.0:3000`. Para validar el build localmente:
+El formulario envía a `/api/contact`. En `npm run dev` ese endpoint **no existe** (solo lo sirve la plataforma de hosting), por lo que el envío mostrará el mensaje de «no pudo registrarse». Para probar el receptor, consulta la sección de pruebas (`tests/contact-api.test.ts`).
+
+## 5. Variables de entorno
+
+Copia `.env.example` a `.env.local` (excluido de Git) para desarrollo.
+
+**Públicas** (`VITE_*`, se incluyen en el bundle; nunca poner secretos):
+
+| Variable | Obligatoria | Uso |
+| --- | --- | --- |
+| `VITE_CONTACT_ENDPOINT` | No | Endpoint alternativo: ruta del mismo origen o URL HTTPS con CORS. Por defecto `/api/contact`. |
+| `VITE_CONTACT_EMAIL` | No | Correo corporativo verificado que se muestra en el pie. |
+| `VITE_SOCIAL_LINKEDIN` / `_INSTAGRAM` / `_GITHUB` / `_YOUTUBE` | No | Solo se muestran si son URLs HTTPS verificadas. |
+| `VITE_PRIVACY_URL` / `VITE_TERMS_URL` | No | Enlaces legales publicados y aprobados. |
+
+**Servidor** (solo en el panel del hosting; nunca en Git):
+
+| Variable | Obligatoria | Uso |
+| --- | --- | --- |
+| `CONTACT_WEBHOOK_URL` | **Sí, para aceptar solicitudes** | URL HTTPS del sistema que recibe las solicitudes (CRM, helpdesk o automatización). Sin ella el receptor responde 503 y **no confirma** la recepción. |
+| `CONTACT_WEBHOOK_TOKEN` | Recomendada | Token Bearer enviado al webhook. |
+| `CONTACT_ALLOWED_ORIGINS` | No | Orígenes adicionales permitidos (p. ej. `https://www.dominio.tld`). |
+
+## 6. Configuración comercial
+
+- **Formulario de cotización** (`src/components/contact/ContactForm.tsx`): tipo de proyecto, plataforma, objetivo, funcionalidades prioritarias, plazo, rango orientativo opcional, descripción y datos de contacto. Incluye revisión previa y consentimiento.
+- **Rangos presupuestarios** (`src/data/contactOptions.ts`): son **placeholders orientativos** en USD que deben confirmarse comercialmente antes de publicarse. No constituyen precios ni ofertas.
+- **Servicios** (`src/data/services.ts`), **proyectos** (`src/data/projects.ts`, marcados como conceptos demostrativos), **tecnologías** (`src/data/technologies.ts`, pendiente de confirmación) y **datos de empresa** (`src/data/company.ts`).
+- Para publicar un caso real: añadir una entrada en `projects.ts` con `isDemoReference: false`, un `status` veraz y capturas autorizadas. El modal ya soporta descripción, objetivo (`scenario`), tecnologías, estado y demostración (`demoUrl`).
+
+## 7. Pruebas y validación
 
 ```bash
-npm run lint
-npm test
-npm run build
-npm run preview
+npm run lint         # ESLint
+npm run typecheck    # TypeScript: src, server y functions
+npm test             # Vitest (unitarias, integración de componentes y del receptor)
+npm run build        # typecheck + build de producción
+npm audit --audit-level=moderate
+npm run test:e2e     # Playwright (requiere navegadores instalados)
 ```
 
-`npm run preview` sirve el build en el puerto 4173. No se configura ni ejecuta un despliegue de producción.
+Cobertura actual:
+
+- **Validación** (`tests/contact-validation.test.ts`): límites, formatos, listas cerradas, consentimiento, campo trampa.
+- **Cliente de envío** (`tests/contact-submit.test.ts`): solo 202 confirma; timeout, cancelación, red, 429, 5xx.
+- **Receptor** (`tests/contact-api.test.ts`): método, origen, Content-Type, tamaño, JSON, tiempo mínimo de llenado, rate limit, webhook no configurado, fallo y timeout del webhook.
+- **Componentes** (`tests/contact.test.tsx`, `tests/modal.test.tsx`, `tests/navigation.test.tsx`, `tests/app.test.tsx`): revisión, errores por campo, doble envío, pérdida de datos, foco en modales y menú, proyecto de referencia.
+- **SEO e identidad** (`tests/seo-and-identity.test.ts`).
+- **E2E** (`e2e/`): navegación, formulario (incluido error de red), modal con teclado y menú móvil en resolución móvil.
+
+Las pruebas E2E se ejecutan en el job `e2e` de GitHub Actions. Para ejecutarlas localmente con un Chromium ya instalado, define `PLAYWRIGHT_CHROMIUM_PATH=/ruta/a/chromium` antes de `npm run test:e2e`. Estado: en CI el job E2E pasa en el PR (ver `docs/AUDITORIA.md` §7).
+
+## 8. Seguridad
+
+- Secretos únicamente en el servidor (variables del hosting); el bundle solo contiene variables `VITE_` públicas.
+- Receptor: origen obligatorio y coincidente, `Content-Type` JSON, máximo 16 KB, validación completa server-side, honeypot, tiempo mínimo de llenado (2 s), rate limit por IP (5 solicitudes / 10 min), `redirect: 'error'`, timeout de 8 s hacia el webhook, respuestas genéricas sin eco de datos.
+- Cabeceras en `public/_headers`: CSP estricta (`script-src 'self'`, `connect-src 'self'`, `object-src 'none'`, `frame-ancestors 'none'`), `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, COOP/CORP.
+- Sin `dangerouslySetInnerHTML` ni `innerHTML`. Enlaces externos con `rel="noopener noreferrer"`.
+- Limitaciones y pendientes: ver `docs/AUDITORIA.md` §5.
+
+## 9. Accesibilidad
+
+Objetivo de referencia: **WCAG 2.2 AA**. Implementado: enlace de salto, foco visible, cierre con Escape, foco atrapado y restaurado en el modal, retorno de foco en el menú móvil, errores asociados a campos (`aria-invalid`, `aria-describedby`), etiquetas visibles, `prefers-reduced-motion`. **No se afirma conformidad**: no se ha realizado una auditoría con lectores de pantalla ni medición de contraste automatizada en navegador.
+
+## 10. Despliegue
+
+Ver [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md): hosting recomendado, variables, verificación de cabeceras, CI y procedimiento de rollback. **No se ha desplegado ningún entorno de producción** desde este repositorio.
+
+## 11. Consideraciones legales pendientes
+
+Antes de recopilar datos de visitantes en producción, el propietario debe:
+
+1. Publicar la **política de privacidad** y enlazarla con `VITE_PRIVACY_URL` (la casilla de consentimiento la referencia).
+2. Definir el **responsable del tratamiento**, la finalidad, el plazo de conservación y los medios para ejercer derechos (en el marco aplicable, p. ej. Ley 1581 de 2012 de Colombia). *Pendiente de revisión jurídica.*
+3. Confirmar los **términos de servicio** (`VITE_TERMS_URL`) y las condiciones de los rangos orientativos.
+4. Confirmar los **datos de identidad** (dirección, NIT, representante) si se publican.
+
+## 12. Mantenimiento
+
+- Mantener `npm audit` en verde; actualizar dependencias por lotes y verificar con `npm test` y `npm run build`.
+- Nuevas tecnologías, casos o certificaciones solo se publican con evidencia verificada.
+- Antes de cambiar el receptor, actualizar `server/contact/handler.ts`, sus pruebas y `docs/DEPLOYMENT.md`.
 
 ## Estructura
 
 ```text
-src/
-├── assets/                 # Recursos fuente y variantes WebP optimizadas
-├── components/
-│   ├── about/              # Empresa, metodología y principios
-│   ├── contact/            # Formulario comercial y estados reales
-│   ├── cta/                # Llamado a la acción
-│   ├── hero/               # Propuesta principal e isotipo existente
-│   ├── layout/             # Navegación responsive y footer
-│   ├── modals/             # Detalle accesible de concepto de proyecto
-│   ├── portfolio/          # Tarjetas de proyectos demostrativos
-│   ├── services/           # Catálogo de seis servicios
-│   ├── technologies/       # Tecnologías de referencia configurables
-│   └── ui/                 # Primitivas reutilizables
-├── data/                   # Datos de empresa, servicios, proyectos y stack
-├── styles/index.css        # Tokens y estilos responsive
-├── App.tsx                 # Composición de la landing page
-└── main.tsx                # Entrada React
-public/
-├── _headers                # Ejemplo de cabeceras para hosting compatible
-├── favicon.png             # Recorte del isotipo raster existente
-├── hero_composition.webp   # Vista previa social
-└── robots.txt
+.github/workflows/ci.yml     CI en Pull Requests (lint, typecheck, test, build, audit, E2E)
+docs/                        Auditoría y guía de despliegue
+e2e/                         Pruebas Playwright
+functions/api/contact.ts     Adaptador del receptor (Cloudflare Pages Functions)
+public/_headers              Cabeceras de seguridad y caché
+server/contact/              Lógica del receptor y límite de peticiones
+src/                         Aplicación React
+tests/                       Pruebas unitarias e integración (Vitest)
 ```
-
-No se usa React Router: el sitio es una única página y su navegación funciona mediante anclas. Los componentes están separados por módulo; los datos editables viven en `src/data/`. Los estilos emplean tokens CSS para mantener la paleta, superficies, radios, sombras, ritmo, movimiento y puntos de quiebre en un solo sistema.
-
-## Configuración comercial
-
-Copia `.env.example` a `.env.local` y configura solo datos aprobados. `.env.local` está excluido de Git.
-
-### Recepción de cotizaciones
-
-El formulario **no simula envíos**. Por defecto informa que no se ha enviado ni almacenado nada.
-
-Opción recomendada: configurar `VITE_CONTACT_ENDPOINT` con una ruta del mismo origen (por ejemplo, `/api/contact`) o URL HTTPS. La variable `VITE_*` es pública en el bundle: contiene únicamente una dirección de endpoint, nunca secretos. El servicio del servidor debe:
-
-- validar tamaño y contenido de todos los campos;
-- comprobar el origen permitido y limitar la tasa de peticiones;
-- añadir protección anti-spam adecuada;
-- manejar errores sin revelar datos internos;
-- evitar registrar información personal innecesaria;
-- cumplir los requisitos de tratamiento de datos aplicables.
-
-Solo una respuesta HTTP exitosa del endpoint muestra confirmación de aceptación. Para endpoints HTTPS externos, configura CORS en el servidor y ajusta `connect-src` en `public/_headers` para permitir exactamente ese origen.
-
-Como alternativa, `VITE_CONTACT_EMAIL` abre el cliente de correo del visitante con el mensaje preparado; el usuario todavía debe revisarlo y enviarlo. La página aclara que SPEFIBER no lo ha recibido hasta ese momento. No se incluye una dirección de correo inventada por defecto.
-
-### Redes y enlaces legales
-
-Configura `VITE_SOCIAL_LINKEDIN`, `VITE_SOCIAL_INSTAGRAM`, `VITE_SOCIAL_GITHUB` y `VITE_SOCIAL_YOUTUBE` solo con perfiles corporativos verificados. Las URLs externas no HTTPS se descartan. `VITE_PRIVACY_URL` y `VITE_TERMS_URL` aparecen únicamente cuando se proporcionan rutas locales o enlaces HTTPS reales; no se crean enlaces legales ficticios.
-
-## Contenido editable
-
-- `src/data/services.ts`: los seis servicios, descripciones e iconos.
-- `src/data/about.ts`: relato, visión, metodología y pilares.
-- `src/data/projects.ts`: nombres, escenarios, descripciones y stacks de los conceptos.
-- `src/data/technologies.ts`: inventario de referencia.
-- `src/data/company.ts`: identidad de marca y valores opcionales desde variables de entorno.
-
-El portafolio actual está expresamente marcado como **conceptos demostrativos**: no atribuye clientes, trabajo entregado ni resultados a SPEFIBER. Sustituirlos por casos aprobados y capturas de alta resolución antes de publicar un portafolio real. La sección de tecnologías también se identifica como referencia editable y debe validarse con el equipo.
-
-## Identidad visual
-
-La navegación y el pie usan el lockup raster disponible y el hero incorpora la composición metálica existente con la S tridimensional. Se conserva su proporción y no se reemplaza por una letra genérica. El isotipo entregado no es un SVG vectorial; para producción conviene solicitar el arte oficial vectorial, con transparencia, versiones claras/oscuras y variantes de uso pequeño. Las imágenes de proyectos actuales son muestras de baja resolución, no capturas de trabajos aprobados.
-
-## SEO, accesibilidad y seguridad
-
-- HTML en español, título, descripción, Open Graph, Twitter Card, `robots.txt` y favicon.
-- No se fija un dominio canónico ni se crea `sitemap.xml` hasta confirmar el dominio oficial. Antes de publicar, convertir la imagen social y los metadatos relativos a URLs absolutas y generar el sitemap del dominio real.
-- Navegación por anclas, enlace para saltar al contenido, foco visible, controles con nombre accesible, menú móvil con Escape, diálogo de proyecto con cierre por Escape y gestión básica del foco.
-- La animación se limita a transiciones cortas y el CSS respeta `prefers-reduced-motion`.
-- `public/_headers` ofrece CSP y cabeceras de seguridad como base para hosting que soporte el formato `_headers`. Revísalo para el proveedor final, especialmente `connect-src` si el endpoint no es del mismo origen.
-- No se cargan fuentes de terceros, no hay credenciales ni datos personales de ejemplo y no se persiste el contenido del formulario en el navegador.
-
-## QA ejecutado
-
-| Verificación | Resultado |
-|---|---|
-| `npm run build` (TypeScript estricto + Vite) | Correcto |
-| `npm run lint` (ESLint) | Correcto, sin errores ni advertencias |
-| `npm test` (Vitest + Testing Library) | 5 pruebas aprobadas: envío sin configuración, endpoint exitoso, endpoint fallido, validación de email y menú responsive/teclado |
-| `npm audit --audit-level=moderate` | 0 vulnerabilidades reportadas |
-| `git diff --check` | Correcto |
-| Smoke test del servidor Vite y recursos públicos | HTTP 200 para HTML, favicon y arte social |
-
-La matriz de diseño contempla 320, 375, 768, 1024 y 1440 px; no se ejecutó una sesión automatizada de navegador real, ni una auditoría axe/WCAG, ni mediciones de Core Web Vitals. Por eso no se afirma conformidad WCAG 2.2 AA ni resultados LCP/INP/CLS: deben verificarse en los navegadores y el hosting finales.
-
-El build produce aproximadamente 193 kB de JavaScript (60 kB gzip), 43 kB de CSS (9.5 kB gzip) y recursos WebP optimizados para el hero, CTA y tarjetas. Son tamaños de artefacto, no mediciones de rendimiento de usuario real.
-
-## Siguiente iteración antes de producción
-
-1. Recibir y validar el SVG oficial del isotipo y los logos corporativos.
-2. Confirmar dominio, correo, redes, enlaces legales y política de privacidad.
-3. Conectar y probar un endpoint real con controles server-side; probar también errores, rate limiting y protección anti-spam.
-4. Sustituir conceptos y recursos de ejemplo por proyectos/capturas aprobados.
-5. Confirmar la lista de tecnologías con SPEFIBER.
-6. Ejecutar pruebas E2E con Playwright, auditoría automatizada de accesibilidad y Lighthouse/CWV en los breakpoints y navegadores objetivo.
-7. Ajustar metadatos, sitemap, robots y cabeceras al proveedor de despliegue elegido.
-
-## Deploy
-
-El repositorio queda preparado para generar estáticos con `npm run build`; los archivos resultantes quedan en `dist/`. No se ha desplegado ni modificado infraestructura de producción. Verifica las variables, CSP, políticas de datos y URLs de SEO antes de publicar.

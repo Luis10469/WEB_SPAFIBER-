@@ -23,13 +23,9 @@ export const TechnologiesSection: React.FC = () => (
           La arquitectura y las herramientas se seleccionan según los requisitos, el contexto y el
           mantenimiento esperado de cada producto.
         </p>
-        <p className="technologies-note">
-          Stack de referencia editable. Su inclusión no sustituye la validación de experiencia y
-          disponibilidad antes de publicar una propuesta comercial.
-        </p>
       </div>
 
-      <div className="technology-grid" aria-label="Tecnologías de referencia">
+      <div className="technology-grid" aria-label="Tecnologías">
         {technologiesData.map((technology) => {
           const Icon = technologyIcons[technology.iconName];
           return (
