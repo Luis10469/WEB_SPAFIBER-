@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
-import { handleContactRequest, MAX_FORM_AGE_MS, MIN_FORM_FILL_MS, type ContactEnv } from '../server/contact/handler';
+import { handleContactRequest, MIN_FORM_FILL_MS, type ContactEnv } from '../server/contact/handler';
 import { createMemoryRateLimiter } from '../server/contact/rateLimit';
 
 const ORIGIN = 'https://spefiber.example.test';
@@ -141,11 +141,14 @@ describe('handleContactRequest', () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it('bloquea envíos demasiado rápidos y formularios antiguos', async () => {
+  it('bloquea envíos demasiado rápidos para un ser humano', async () => {
     const fast = await handleContactRequest(buildRequest({ body: body({ renderedAt: NOW - 500 }) }), env, deps());
     expect(fast.status).toBe(400);
-    const stale = await handleContactRequest(buildRequest({ body: body({ renderedAt: NOW - MAX_FORM_AGE_MS - 1 }) }), env, deps());
-    expect(stale.status).toBe(400);
+  });
+
+  it('acepta formularios abiertos durante mucho tiempo (sin máximo de antigüedad)', async () => {
+    const stale = await handleContactRequest(buildRequest({ body: body({ renderedAt: NOW - 3 * 24 * 60 * 60 * 1000 }) }), env, deps());
+    expect(stale.status).toBe(202);
   });
 
   it('aplica límite de peticiones por IP con Retry-After', async () => {

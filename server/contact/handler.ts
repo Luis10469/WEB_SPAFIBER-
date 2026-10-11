@@ -23,7 +23,6 @@ export interface ContactHandlerDeps {
 }
 
 export const MIN_FORM_FILL_MS = 2_000;
-export const MAX_FORM_AGE_MS = 24 * 60 * 60 * 1000;
 export const DELIVERY_TIMEOUT_MS = 8_000;
 
 const JSON_HEADERS = {
@@ -112,8 +111,10 @@ export async function handleContactRequest(
     return jsonResponse(400, { error: 'validation', fields: parsed.errors });
   }
 
+  // Heurística anti-bots: un formulario no puede enviarse en menos de MIN_FORM_FILL_MS.
+  // No se impone un máximo: una pestaña abierta durante horas debe seguir siendo utilizable.
   const elapsed = now() - parsed.data.renderedAt;
-  if (elapsed < MIN_FORM_FILL_MS || elapsed > MAX_FORM_AGE_MS) {
+  if (elapsed < MIN_FORM_FILL_MS) {
     log('timing-rejected');
     return jsonResponse(400, {
       error: 'validation',

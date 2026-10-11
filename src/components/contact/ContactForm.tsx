@@ -160,7 +160,12 @@ export const ContactForm: React.FC<ContactFormProps> = ({ initialServiceId, refe
         }
         setErrors(serverFields);
         setReviewing(false);
-        setStatus({ kind: 'error', message: 'Revisa los campos marcados antes de continuar.' });
+        setStatus({
+          kind: 'error',
+          message: Object.keys(serverFields).length > 0
+            ? 'Revisa los campos marcados antes de continuar.'
+            : 'No pudimos procesar la solicitud. Revisa los datos e inténtalo de nuevo.',
+        });
         break;
       }
       case 'cancelled':
